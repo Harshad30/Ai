@@ -1,0 +1,945 @@
+#THIS IS THE DFS ALGORITHM (Assignment 1 Part 1)...............................................
+
+# Using a Python dictionary to act as an adjacency list
+graph = {
+  '5' : ['3','7'],
+  '3' : ['2', '4'],
+  '7' : ['8'],
+  '2' : [],
+  '4' : ['8'],
+  '8' : []
+}
+
+visited = set() # Set to keep track of visited nodes of graph.
+
+def dfs(visited, graph, node):  #function for dfs 
+    if node not in visited:
+        print (node)
+        visited.add(node)
+        for neighbour in graph[node]:
+            dfs(visited, graph, neighbour)
+
+# Driver Code
+print("Following is the Depth-First Search")
+dfs(visited, graph, '5')
+
+#THIS IS BFS ALGORITHM (Assignment 1 Part 2).................................................................
+
+graph = {
+    'A': ['B', 'C', "D"],
+    'B': ['E', "F"],
+    'C': ['G', "I"],
+    'D': ["I"],
+    'E': [],
+    "F": [],
+    'G': [],
+    "I": []
+}
+ 
+def bfs(visit_complete, graph, current_node):
+    visit_complete.append(current_node)
+    queue = []
+    queue.append(current_node)
+ 
+    while queue:
+        s = queue.pop(0)
+        print(s)
+ 
+        for neighbour in graph[s]:
+            if neighbour not in visit_complete:
+                visit_complete.append(neighbour)
+                queue.append(neighbour)
+ 
+bfs([], graph, 'A')
+
+#This is A* Algorithm (Assignment 2)............................................................
+
+from collections import deque
+ 
+class Graph:
+    def __init__(self, adjac_lis):
+        self.adjac_lis = adjac_lis
+ 
+    def get_neighbors(self, v):
+        return self.adjac_lis[v]
+ 
+    # This is heuristic function which is having equal values for all nodes
+    def h(self, n):
+        H = {
+            'A': 1,
+            'B': 1,
+            'C': 1,
+            'D': 1
+        }
+ 
+        return H[n]
+ 
+    def a_star_algorithm(self, start, stop):
+        # In this open_lst is a lisy of nodes which have been visited, but who's 
+        # neighbours haven't all been always inspected, It starts off with the start 
+  #node
+        # And closed_lst is a list of nodes which have been visited
+        # and who's neighbors have been always inspected
+        open_lst = set([start])
+        closed_lst = set([])
+ 
+        # poo has present distances from start to all other nodes
+        # the default value is +infinity
+        poo = {}
+        poo[start] = 0
+ 
+        # par contains an adjac mapping of all nodes
+        par = {}
+        par[start] = start
+ 
+        while len(open_lst) > 0:
+            n = None
+ 
+            # it will find a node with the lowest value of f() -
+            for v in open_lst:
+                if n == None or poo[v] + self.h(v) < poo[n] + self.h(n):
+                    n = v;
+ 
+            if n == None:
+                print('Path does not exist!')
+                return None
+ 
+            # if the current node is the stop
+            # then we start again from start
+            if n == stop:
+                reconst_path = []
+ 
+                while par[n] != n:
+                    reconst_path.append(n)
+                    n = par[n]
+ 
+                reconst_path.append(start)
+ 
+                reconst_path.reverse()
+ 
+                print('Path found: {}'.format(reconst_path))
+                return reconst_path
+ 
+            # for all the neighbors of the current node do
+            for (m, weight) in self.get_neighbors(n):
+              # if the current node is not presentin both open_lst and closed_lst
+                # add it to open_lst and note n as it's par
+                if m not in open_lst and m not in closed_lst:
+                    open_lst.add(m)
+                    par[m] = n
+                    poo[m] = poo[n] + weight
+ 
+                # otherwise, check if it's quicker to first visit n, then m
+                # and if it is, update par data and poo data
+                # and if the node was in the closed_lst, move it to open_lst
+                else:
+                    if poo[m] > poo[n] + weight:
+                        poo[m] = poo[n] + weight
+                        par[m] = n
+ 
+                        if m in closed_lst:
+                            closed_lst.remove(m)
+                            open_lst.add(m)
+ 
+            # remove n from the open_lst, and add it to closed_lst
+            # because all of his neighbors were inspected
+            open_lst.remove(n)
+            closed_lst.add(n)
+ 
+        print('Path does not exist!')
+        return None
+        
+adjac_lis = {
+    'A': [('B', 1), ('C', 3), ('D', 7)],
+    'B': [('D', 5)],
+    'C': [('D', 12)]
+
+#Prims Algorithm (Assignment 3)...........................................................
+
+import sys # Library for INT_MAX
+ 
+class Graph():
+ 
+    def __init__(self, vertices):
+        self.V = vertices
+        self.graph = [[0 for column in range(vertices)]
+                    for row in range(vertices)]
+ 
+    # A utility function to print the constructed MST stored in parent[]
+    def printMST(self, parent):
+        print ("Edge \tWeight")
+        for i in range(1, self.V):
+            print (parent[i], "-", i, "\t", self.graph[i][parent[i]])
+ 
+    # A utility function to find the vertex with
+    # minimum distance value, from the set of vertices
+    # not yet included in shortest path tree
+    def minKey(self, key, mstSet):
+ 
+        # Initialize min value
+        min = sys.maxsize
+ 
+        for v in range(self.V):
+            if key[v] < min and mstSet[v] == False:
+                min = key[v]
+                min_index = v
+ 
+        return min_index
+ 
+    # Function to construct and print MST for a graph
+    # represented using adjacency matrix representation
+    def primMST(self):
+ 
+        # Key values used to pick minimum weight edge in cut
+        key = [sys.maxsize] * self.V
+        parent = [None] * self.V # Array to store constructed MST
+        # Make key 0 so that this vertex is picked as first vertex
+        key[0] = 0
+        mstSet = [False] * self.V
+ 
+        parent[0] = -1 # First node is always the root of
+ 
+        for cout in range(self.V):
+ 
+            # Pick the minimum distance vertex from
+            # the set of vertices not yet processed.
+            # u is always equal to src in first iteration
+            u = self.minKey(key, mstSet)
+ 
+            # Put the minimum distance vertex in
+            # the shortest path tree
+            mstSet[u] = True
+ 
+            # Update dist value of the adjacent vertices
+            # of the picked vertex only if the current
+            # distance is greater than new distance and
+            # the vertex in not in the shortest path tree
+            for v in range(self.V):
+ 
+                # graph[u][v] is non zero only for adjacent vertices of m
+                # mstSet[v] is false for vertices not yet included in MST
+                # Update the key only if graph[u][v] is smaller than key[v]
+                if self.graph[u][v] > 0 and mstSet[v] == False and key[v] > self.graph[u][v]:
+                        key[v] = self.graph[u][v]
+                        parent[v] = u
+ 
+        self.printMST(parent)
+ 
+g = Graph(5)
+g.graph = [ [0, 2, 0, 6, 0],
+            [2, 0, 3, 8, 5],
+            [0, 3, 0, 0, 7],
+            [6, 8, 0, 0, 9],
+            [0, 5, 7, 9, 0]]
+ 
+g.primMST();
+
+#........................................................................................................
+
+#THIS IS N-QUEENS PROBLEM
+
+class QueenChessBoard:
+    def __init__(self, size):
+        # board has dimensions size x size
+        self.size = size
+        # columns[r] is a number c if a queen is placed at row r and column c.
+        # columns[r] is out of range if no queen is place in row r.
+        # Thus after all queens are placed, they will be at positions
+        # (columns[0], 0), (columns[1], 1), ... (columns[size - 1], size - 1)
+        self.columns = []
+ 
+    def place_in_next_row(self, column):
+        self.columns.append(column)
+ 
+    def remove_in_current_row(self):
+        return self.columns.pop()
+ 
+    def is_this_column_safe_in_next_row(self, column):
+        # index of next row
+        row = len(self.columns)
+ 
+        # check column
+        for queen_column in self.columns:
+            if column == queen_column:
+                return False
+ 
+        # check diagonal
+        for queen_row, queen_column in enumerate(self.columns):
+            if queen_column - queen_row == column - row:
+                return False
+ 
+        # check other diagonal
+        for queen_row, queen_column in enumerate(self.columns):
+            if ((self.size - queen_column) - queen_row
+                == (self.size - column) - row):
+                return False
+ 
+        return True
+ 
+    def display(self):
+        for row in range(self.size):
+            for column in range(self.size):
+                if column == self.columns[row]:
+                    print('Q', end=' ')
+                else:
+                    print('.', end=' ')
+            print()
+ 
+ 
+def solve_queen(size):
+    """Display a chessboard for each possible configuration of placing n queens
+    on an n x n chessboard and print the number of such configurations."""
+    board = QueenChessBoard(size)
+    number_of_solutions = 0
+ 
+    row = 0
+    column = 0
+    # iterate over rows of board
+    while True:
+        # place queen in next row
+        while column < size:
+            if board.is_this_column_safe_in_next_row(column):
+                board.place_in_next_row(column)
+                row += 1
+                column = 0
+                break
+            else:
+                column += 1
+ 
+        # if could not find column to place in or if board is full
+        if (column == size or row == size):
+            # if board is full, we have a solution
+            if row == size:
+                board.display()
+                print()
+                number_of_solutions += 1
+ 
+                # small optimization:
+                # In a board that already has queens placed in all rows except
+                # the last, we know there can only be at most one position in
+                # the last row where a queen can be placed. In this case, there
+                # is a valid position in the last row. Thus we can backtrack two
+                # times to reach the second last row.
+                board.remove_in_current_row()
+                row -= 1
+ 
+            # now backtrack
+            try:
+                prev_column = board.remove_in_current_row()
+            except IndexError:
+                # all queens removed
+                # thus no more possible configurations
+                break
+            # try previous row again
+            row -= 1
+            # start checking at column = (1 + value of column in previous row)
+            column = 1 + prev_column
+ 
+    print('Number of solutions:', number_of_solutions)
+ 
+ 
+n = int(input('Enter n: '))
+solve_queen(n)
+
+#............................................................................................
+
+# GRAPH PROBLEM
+
+# Adjacent Matrix
+G = [[ 0, 1, 1, 0, 1, 0],
+     [ 1, 0, 1, 1, 0, 1],
+     [ 1, 1, 0, 1, 1, 0],
+     [ 0, 1, 1, 0, 0, 1],
+     [ 1, 0, 1, 0, 0, 1],
+     [ 0, 1, 0, 1, 1, 0]]
+
+# inisiate the name of node.
+node = "abcdef"
+t_={}
+for i in range(len(G)):
+  t_[node[i]] = i
+
+# count degree of all node.
+degree =[]
+for i in range(len(G)):
+  degree.append(sum(G[i]))
+
+# inisiate the posible color
+colorDict = {}
+for i in range(len(G)):
+  colorDict[node[i]]=["Blue","Red","Yellow","Green"]
+
+# sort the node depends on the degree
+sortedNode=[]
+indeks = []
+
+# use selection sort
+for i in range(len(degree)):
+  _max = 0
+  j = 0
+  for j in range(len(degree)):
+    if j not in indeks:
+      if degree[j] > _max:
+        _max = degree[j]
+        idx = j
+  indeks.append(idx)
+  sortedNode.append(node[idx])
+
+# The main process
+theSolution={}
+for n in sortedNode:
+  setTheColor = colorDict[n]
+  theSolution[n] = setTheColor[0]
+  adjacentNode = G[t_[n]]
+  for j in range(len(adjacentNode)):
+    if adjacentNode[j]==1 and (setTheColor[0] in colorDict[node[j]]):
+      colorDict[node[j]].remove(setTheColor[0])
+
+# Print the solution
+for t,w in sorted(theSolution.items()):
+  print("Node",t," = ",w)
+
+#..................................................................................................
+
+#THIS IS CHAT BOT PROBLEM
+
+def greet(bot_name, birth_year):
+    print("Hello! My name is {0}.".format(bot_name))
+    print("I was created in {0}.".format(birth_year))
+
+def remind_name():
+    print('Please, remind me your name.')
+    name = input()
+    print("What a great name you have, {0}!".format(name))
+
+def guess_age():
+    print('Let me guess your age.')
+    print('Enter remainders of dividing your age by 3, 5 and 7.')
+
+    rem3 = float(input())
+    rem5 = float(input())
+    rem7 = float(input())
+    age = (rem3 * 70 + rem5 * 21 + rem7 * 15) % 105
+
+    print("Your age is {0}; that's a good time to start programming!".format(age))
+
+def count():
+    print('Now I will prove to you that I can count to any number you want.')
+    num = int(input())
+
+    counter = 0
+    while counter <= num:
+        print("{0} !".format(counter))
+        counter += 1
+
+def test():
+    print("Let's test your programming knowledge.")
+    print("Why do we use methods?")
+    print("1. To repeat a statement multiple times.")
+    print("2. To decompose a program into several small subroutines.")
+    print("3. To determine the execution time of a program.")
+    print("4. To interrupt the execution of a program.")
+
+    answer = 2
+    guess = int(input())
+    while guess != answer:
+        print("Please, try again.")
+        guess = int(input())
+
+    print('Completed, have a nice day!')
+    print('.................................')
+    print('.................................')
+    print('.................................')
+
+def end():
+    print('Congratulations, have a nice day!')
+    print('.................................')
+    print('.................................')
+    print('.................................')
+    input()
+
+greet('ZealBot', '2022')  # change it as you need
+remind_name()
+guess_age()
+count()
+test()
+end()
+
+#...........................................................................................
+
+drive link for google app engine video
+
+https://drive.google.com/drive/folders/1FYosTCLrel6l7XGydX2L_gsI2c7ndAwI
+
+#THIS IS THE DFS ALGORITHM (Assignment 1 Part 1)...............................................
+
+# Using a Python dictionary to act as an adjacency list
+graph = {
+  '5' : ['3','7'],
+  '3' : ['2', '4'],
+  '7' : ['8'],
+  '2' : [],
+  '4' : ['8'],
+  '8' : []
+}
+
+visited = set() # Set to keep track of visited nodes of graph.
+
+def dfs(visited, graph, node):  #function for dfs 
+    if node not in visited:
+        print (node)
+        visited.add(node)
+        for neighbour in graph[node]:
+            dfs(visited, graph, neighbour)
+
+# Driver Code
+print("Following is the Depth-First Search")
+dfs(visited, graph, '5')
+
+#THIS IS BFS ALGORITHM (Assignment 1 Part 2).................................................................
+
+graph = {
+    'A': ['B', 'C', "D"],
+    'B': ['E', "F"],
+    'C': ['G', "I"],
+    'D': ["I"],
+    'E': [],
+    "F": [],
+    'G': [],
+    "I": []
+}
+ 
+def bfs(visit_complete, graph, current_node):
+    visit_complete.append(current_node)
+    queue = []
+    queue.append(current_node)
+ 
+    while queue:
+        s = queue.pop(0)
+        print(s)
+ 
+        for neighbour in graph[s]:
+            if neighbour not in visit_complete:
+                visit_complete.append(neighbour)
+                queue.append(neighbour)
+ 
+bfs([], graph, 'A')
+
+#This is A* Algorithm (Assignment 2)............................................................
+
+from collections import deque
+ 
+class Graph:
+    def __init__(self, adjac_lis):
+        self.adjac_lis = adjac_lis
+ 
+    def get_neighbors(self, v):
+        return self.adjac_lis[v]
+ 
+    # This is heuristic function which is having equal values for all nodes
+    def h(self, n):
+        H = {
+            'A': 1,
+            'B': 1,
+            'C': 1,
+            'D': 1
+        }
+ 
+        return H[n]
+ 
+    def a_star_algorithm(self, start, stop):
+        # In this open_lst is a lisy of nodes which have been visited, but who's 
+        # neighbours haven't all been always inspected, It starts off with the start 
+  #node
+        # And closed_lst is a list of nodes which have been visited
+        # and who's neighbors have been always inspected
+        open_lst = set([start])
+        closed_lst = set([])
+ 
+        # poo has present distances from start to all other nodes
+        # the default value is +infinity
+        poo = {}
+        poo[start] = 0
+ 
+        # par contains an adjac mapping of all nodes
+        par = {}
+        par[start] = start
+ 
+        while len(open_lst) > 0:
+            n = None
+ 
+            # it will find a node with the lowest value of f() -
+            for v in open_lst:
+                if n == None or poo[v] + self.h(v) < poo[n] + self.h(n):
+                    n = v;
+ 
+            if n == None:
+                print('Path does not exist!')
+                return None
+ 
+            # if the current node is the stop
+            # then we start again from start
+            if n == stop:
+                reconst_path = []
+ 
+                while par[n] != n:
+                    reconst_path.append(n)
+                    n = par[n]
+ 
+                reconst_path.append(start)
+ 
+                reconst_path.reverse()
+ 
+                print('Path found: {}'.format(reconst_path))
+                return reconst_path
+ 
+            # for all the neighbors of the current node do
+            for (m, weight) in self.get_neighbors(n):
+              # if the current node is not presentin both open_lst and closed_lst
+                # add it to open_lst and note n as it's par
+                if m not in open_lst and m not in closed_lst:
+                    open_lst.add(m)
+                    par[m] = n
+                    poo[m] = poo[n] + weight
+ 
+                # otherwise, check if it's quicker to first visit n, then m
+                # and if it is, update par data and poo data
+                # and if the node was in the closed_lst, move it to open_lst
+                else:
+                    if poo[m] > poo[n] + weight:
+                        poo[m] = poo[n] + weight
+                        par[m] = n
+ 
+                        if m in closed_lst:
+                            closed_lst.remove(m)
+                            open_lst.add(m)
+ 
+            # remove n from the open_lst, and add it to closed_lst
+            # because all of his neighbors were inspected
+            open_lst.remove(n)
+            closed_lst.add(n)
+ 
+        print('Path does not exist!')
+        return None
+        
+adjac_lis = {
+    'A': [('B', 1), ('C', 3), ('D', 7)],
+    'B': [('D', 5)],
+    'C': [('D', 12)]
+
+#Prims Algorithm (Assignment 3)...........................................................
+
+import sys # Library for INT_MAX
+ 
+class Graph():
+ 
+    def __init__(self, vertices):
+        self.V = vertices
+        self.graph = [[0 for column in range(vertices)]
+                    for row in range(vertices)]
+ 
+    # A utility function to print the constructed MST stored in parent[]
+    def printMST(self, parent):
+        print ("Edge \tWeight")
+        for i in range(1, self.V):
+            print (parent[i], "-", i, "\t", self.graph[i][parent[i]])
+ 
+    # A utility function to find the vertex with
+    # minimum distance value, from the set of vertices
+    # not yet included in shortest path tree
+    def minKey(self, key, mstSet):
+ 
+        # Initialize min value
+        min = sys.maxsize
+ 
+        for v in range(self.V):
+            if key[v] < min and mstSet[v] == False:
+                min = key[v]
+                min_index = v
+ 
+        return min_index
+ 
+    # Function to construct and print MST for a graph
+    # represented using adjacency matrix representation
+    def primMST(self):
+ 
+        # Key values used to pick minimum weight edge in cut
+        key = [sys.maxsize] * self.V
+        parent = [None] * self.V # Array to store constructed MST
+        # Make key 0 so that this vertex is picked as first vertex
+        key[0] = 0
+        mstSet = [False] * self.V
+ 
+        parent[0] = -1 # First node is always the root of
+ 
+        for cout in range(self.V):
+ 
+            # Pick the minimum distance vertex from
+            # the set of vertices not yet processed.
+            # u is always equal to src in first iteration
+            u = self.minKey(key, mstSet)
+ 
+            # Put the minimum distance vertex in
+            # the shortest path tree
+            mstSet[u] = True
+ 
+            # Update dist value of the adjacent vertices
+            # of the picked vertex only if the current
+            # distance is greater than new distance and
+            # the vertex in not in the shortest path tree
+            for v in range(self.V):
+ 
+                # graph[u][v] is non zero only for adjacent vertices of m
+                # mstSet[v] is false for vertices not yet included in MST
+                # Update the key only if graph[u][v] is smaller than key[v]
+                if self.graph[u][v] > 0 and mstSet[v] == False and key[v] > self.graph[u][v]:
+                        key[v] = self.graph[u][v]
+                        parent[v] = u
+ 
+        self.printMST(parent)
+ 
+g = Graph(5)
+g.graph = [ [0, 2, 0, 6, 0],
+            [2, 0, 3, 8, 5],
+            [0, 3, 0, 0, 7],
+            [6, 8, 0, 0, 9],
+            [0, 5, 7, 9, 0]]
+ 
+g.primMST();
+
+#........................................................................................................
+
+#THIS IS N-QUEENS PROBLEM
+
+class QueenChessBoard:
+    def __init__(self, size):
+        # board has dimensions size x size
+        self.size = size
+        # columns[r] is a number c if a queen is placed at row r and column c.
+        # columns[r] is out of range if no queen is place in row r.
+        # Thus after all queens are placed, they will be at positions
+        # (columns[0], 0), (columns[1], 1), ... (columns[size - 1], size - 1)
+        self.columns = []
+ 
+    def place_in_next_row(self, column):
+        self.columns.append(column)
+ 
+    def remove_in_current_row(self):
+        return self.columns.pop()
+ 
+    def is_this_column_safe_in_next_row(self, column):
+        # index of next row
+        row = len(self.columns)
+ 
+        # check column
+        for queen_column in self.columns:
+            if column == queen_column:
+                return False
+ 
+        # check diagonal
+        for queen_row, queen_column in enumerate(self.columns):
+            if queen_column - queen_row == column - row:
+                return False
+ 
+        # check other diagonal
+        for queen_row, queen_column in enumerate(self.columns):
+            if ((self.size - queen_column) - queen_row
+                == (self.size - column) - row):
+                return False
+ 
+        return True
+ 
+    def display(self):
+        for row in range(self.size):
+            for column in range(self.size):
+                if column == self.columns[row]:
+                    print('Q', end=' ')
+                else:
+                    print('.', end=' ')
+            print()
+ 
+ 
+def solve_queen(size):
+    """Display a chessboard for each possible configuration of placing n queens
+    on an n x n chessboard and print the number of such configurations."""
+    board = QueenChessBoard(size)
+    number_of_solutions = 0
+ 
+    row = 0
+    column = 0
+    # iterate over rows of board
+    while True:
+        # place queen in next row
+        while column < size:
+            if board.is_this_column_safe_in_next_row(column):
+                board.place_in_next_row(column)
+                row += 1
+                column = 0
+                break
+            else:
+                column += 1
+ 
+        # if could not find column to place in or if board is full
+        if (column == size or row == size):
+            # if board is full, we have a solution
+            if row == size:
+                board.display()
+                print()
+                number_of_solutions += 1
+ 
+                # small optimization:
+                # In a board that already has queens placed in all rows except
+                # the last, we know there can only be at most one position in
+                # the last row where a queen can be placed. In this case, there
+                # is a valid position in the last row. Thus we can backtrack two
+                # times to reach the second last row.
+                board.remove_in_current_row()
+                row -= 1
+ 
+            # now backtrack
+            try:
+                prev_column = board.remove_in_current_row()
+            except IndexError:
+                # all queens removed
+                # thus no more possible configurations
+                break
+            # try previous row again
+            row -= 1
+            # start checking at column = (1 + value of column in previous row)
+            column = 1 + prev_column
+ 
+    print('Number of solutions:', number_of_solutions)
+ 
+ 
+n = int(input('Enter n: '))
+solve_queen(n)
+
+#............................................................................................
+
+# GRAPH PROBLEM
+
+# Adjacent Matrix
+G = [[ 0, 1, 1, 0, 1, 0],
+     [ 1, 0, 1, 1, 0, 1],
+     [ 1, 1, 0, 1, 1, 0],
+     [ 0, 1, 1, 0, 0, 1],
+     [ 1, 0, 1, 0, 0, 1],
+     [ 0, 1, 0, 1, 1, 0]]
+
+# inisiate the name of node.
+node = "abcdef"
+t_={}
+for i in range(len(G)):
+  t_[node[i]] = i
+
+# count degree of all node.
+degree =[]
+for i in range(len(G)):
+  degree.append(sum(G[i]))
+
+# inisiate the posible color
+colorDict = {}
+for i in range(len(G)):
+  colorDict[node[i]]=["Blue","Red","Yellow","Green"]
+
+# sort the node depends on the degree
+sortedNode=[]
+indeks = []
+
+# use selection sort
+for i in range(len(degree)):
+  _max = 0
+  j = 0
+  for j in range(len(degree)):
+    if j not in indeks:
+      if degree[j] > _max:
+        _max = degree[j]
+        idx = j
+  indeks.append(idx)
+  sortedNode.append(node[idx])
+
+# The main process
+theSolution={}
+for n in sortedNode:
+  setTheColor = colorDict[n]
+  theSolution[n] = setTheColor[0]
+  adjacentNode = G[t_[n]]
+  for j in range(len(adjacentNode)):
+    if adjacentNode[j]==1 and (setTheColor[0] in colorDict[node[j]]):
+      colorDict[node[j]].remove(setTheColor[0])
+
+# Print the solution
+for t,w in sorted(theSolution.items()):
+  print("Node",t," = ",w)
+
+#..................................................................................................
+
+#THIS IS CHAT BOT PROBLEM
+
+def greet(bot_name, birth_year):
+    print("Hello! My name is {0}.".format(bot_name))
+    print("I was created in {0}.".format(birth_year))
+
+def remind_name():
+    print('Please, remind me your name.')
+    name = input()
+    print("What a great name you have, {0}!".format(name))
+
+def guess_age():
+    print('Let me guess your age.')
+    print('Enter remainders of dividing your age by 3, 5 and 7.')
+
+    rem3 = float(input())
+    rem5 = float(input())
+    rem7 = float(input())
+    age = (rem3 * 70 + rem5 * 21 + rem7 * 15) % 105
+
+    print("Your age is {0}; that's a good time to start programming!".format(age))
+
+def count():
+    print('Now I will prove to you that I can count to any number you want.')
+    num = int(input())
+
+    counter = 0
+    while counter <= num:
+        print("{0} !".format(counter))
+        counter += 1
+
+def test():
+    print("Let's test your programming knowledge.")
+    print("Why do we use methods?")
+    print("1. To repeat a statement multiple times.")
+    print("2. To decompose a program into several small subroutines.")
+    print("3. To determine the execution time of a program.")
+    print("4. To interrupt the execution of a program.")
+
+    answer = 2
+    guess = int(input())
+    while guess != answer:
+        print("Please, try again.")
+        guess = int(input())
+
+    print('Completed, have a nice day!')
+    print('.................................')
+    print('.................................')
+    print('.................................')
+
+def end():
+    print('Congratulations, have a nice day!')
+    print('.................................')
+    print('.................................')
+    print('.................................')
+    input()
+
+greet('ZealBot', '2022')  # change it as you need
+remind_name()
+guess_age()
+count()
+test()
+end()
+
+#...........................................................................................
+
+drive link for google app engine video
+
+https://drive.google.com/drive/folders/1FYosTCLrel6l7XGydX2L_gsI2c7ndAwI
